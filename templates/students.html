@@ -23,6 +23,9 @@
                     <li class="nav-item">
                         <a class="nav-link active" href="/students">Quản lý sinh viên</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/attendance">Lịch sử điểm danh</a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -56,6 +59,7 @@
                                     Xóa
                                 </button>
                             </form>
+                            <a href="/edit_student/{{ student.student_id }}" class="btn btn-primary">Sửa</a>
                         </td>
                     </tr>
                     {% endfor %}

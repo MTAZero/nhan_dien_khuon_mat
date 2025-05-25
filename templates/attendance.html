@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lịch sử điểm danh</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .container { margin-top: 30px; }
+        .filter-section { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">Hệ thống điểm danh sinh viên</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Trang chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/students">Quản lý sinh viên</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/attendance">Lịch sử điểm danh</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2>Lịch sử điểm danh</h2>
+        
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label for="filter_type" class="form-label">Lọc theo</label>
+                    <select class="form-select" id="filter_type" name="filter_type" onchange="this.form.submit()">
+                        <option value="student" {% if filter_type == 'student' %}selected{% endif %}>Theo sinh viên</option>
+                        <option value="date" {% if filter_type == 'date' %}selected{% endif %}>Theo ngày</option>
+                    </select>
+                </div>
+                
+                {% if filter_type == 'student' %}
+                <div class="col-md-4">
+                    <label for="student_id" class="form-label">Chọn sinh viên</label>
+                    <select class="form-select" id="student_id" name="student_id" onchange="this.form.submit()">
+                        <option value="">Tất cả sinh viên</option>
+                        {% for student in students %}
+                        <option value="{{ student.student_id }}" {% if selected_student == student.student_id %}selected{% endif %}>
+                            {{ student.name }} ({{ student.student_id }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endif %}
+                
+                {% if filter_type == 'date' %}
+                <div class="col-md-4">
+                    <label for="date" class="form-label">Chọn ngày</label>
+                    <input type="date" class="form-control" id="date" name="date" 
+                           value="{{ selected_date }}" onchange="this.form.submit()">
+                </div>
+                {% endif %}
+            </form>
+        </div>
+
+        <!-- Attendance Table -->
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Mã sinh viên</th>
+                        <th>Tên sinh viên</th>
+                        <th>Ngày điểm danh</th>
+                        <th>Thời gian điểm danh</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in attendance_records %}
+                    <tr>
+                        <td>{{ record.student_id }}</td>
+                        <td>{{ record.name }}</td>
+                        <td>{{ record.date }}</td>
+                        <td>{{ record.timestamp.strftime('%H:%M:%S') }}</td>
+                        <td>
+                            <form action="/delete_attendance/{{ record._id }}" method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-danger btn-sm" 
+                                        onclick="return confirm('Bạn có chắc chắn muốn xóa bản ghi điểm danh này?')">
+                                    Xóa
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Summary Section -->
+        {% if filter_type == 'date' %}
+        <div class="mt-4">
+            <h4>Tổng hợp ngày {{ selected_date }}</h4>
+            <p>Tổng số sinh viên điểm danh: {{ attendance_records|length }}</p>
+            <p>Sinh viên chưa điểm danh: {{ total_students - attendance_records|length }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
